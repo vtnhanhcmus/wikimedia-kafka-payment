@@ -1,6 +1,6 @@
-package com.wikimedia.payment;
+package com.wikimedia.payment.config;
 
-import com.wikimedia.basedomain.BookingRequest;
+import com.wikimedia.basedomain.PaymentRequest;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,29 +18,26 @@ import java.util.Map;
 @Configuration
 public class PaymentConsumerConfig {
 
-    @Value(value = "${topic.booking}")
-    private String topic;
-
     @Bean
-    public ReceiverOptions<String, BookingRequest> kafkaReceiverOptions(@Value(value = "${spring.kafka.topic.name}") String topic,
+    public ReceiverOptions<String, PaymentRequest> paymentReceiverOptions(@Value(value = "${topic.payment}") String topic,
                                                                         KafkaProperties kafkaProperties) {
         Map<String, Object> config = new HashMap<>();
         config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
-        config.put(ConsumerConfig.GROUP_ID_CONFIG, "booking-group");
+        config.put(ConsumerConfig.GROUP_ID_CONFIG, "payment-group");
         config.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, false);
         config.put(JsonDeserializer.TRUSTED_PACKAGES,"*");
-        config.put(JsonDeserializer.VALUE_DEFAULT_TYPE,"com.wikimedia.basedomain.BookingRequest");
+        config.put(JsonDeserializer.VALUE_DEFAULT_TYPE,"com.wikimedia.basedomain.PaymentRequest");
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
         config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
-        ReceiverOptions<String, BookingRequest> basicReceiverOptions = ReceiverOptions.create(config);
+        ReceiverOptions<String, PaymentRequest> basicReceiverOptions = ReceiverOptions.create(config);
         return basicReceiverOptions.subscription(Collections.singletonList(topic));
     }
 
     @Bean
-    public ReactiveKafkaConsumerTemplate<String, BookingRequest> reactiveKafkaConsumerTemplate(ReceiverOptions<String, BookingRequest> kafkaReceiverOptions) {
-        return new ReactiveKafkaConsumerTemplate<>(kafkaReceiverOptions);
+    public ReactiveKafkaConsumerTemplate<String, PaymentRequest> paymentKafkaConsumerTemplate(ReceiverOptions<String, PaymentRequest> paymentReceiverOptions) {
+        return new ReactiveKafkaConsumerTemplate<>(paymentReceiverOptions);
     }
 
 }

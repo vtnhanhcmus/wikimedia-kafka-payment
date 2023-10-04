@@ -1,6 +1,7 @@
 package com.wikimedia.booking.config;
 
 import com.wikimedia.basedomain.BookingRequest;
+import com.wikimedia.basedomain.PaymentRequest;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
@@ -13,10 +14,10 @@ import reactor.kafka.sender.SenderOptions;
 import java.util.Map;
 
 @Configuration
-public class ReactiveKafkaProducerConfig {
+public class PaymentKafkaProducerConfig {
 
     @Bean
-    public ReactiveKafkaProducerTemplate<String, BookingRequest> reactiveKafkaProducerTemplate(KafkaProperties kafkaProperties){
+    public ReactiveKafkaProducerTemplate<String, PaymentRequest> paymentKafkaProducerTemplate(KafkaProperties kafkaProperties){
         Map<String, Object> props = kafkaProperties.buildProducerProperties();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);

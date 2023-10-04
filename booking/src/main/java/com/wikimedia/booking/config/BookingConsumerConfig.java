@@ -18,11 +18,8 @@ import java.util.Map;
 @Configuration
 public class BookingConsumerConfig {
 
-    @Value(value = "${topic.booking}")
-    private String topic;
-
     @Bean
-    public ReceiverOptions<String, BookingRequest> kafkaReceiverOptions(@Value(value = "${spring.kafka.topic.name}") String topic,
+    public ReceiverOptions<String, BookingRequest> bookingKafkaReceiverOptions(@Value(value = "${topic.booking}") String topic,
                                                                         KafkaProperties kafkaProperties) {
         Map<String, Object> config = new HashMap<>();
         config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
@@ -39,8 +36,8 @@ public class BookingConsumerConfig {
     }
 
     @Bean
-    public ReactiveKafkaConsumerTemplate<String, BookingRequest> reactiveKafkaConsumerTemplate(ReceiverOptions<String, BookingRequest> kafkaReceiverOptions) {
-        return new ReactiveKafkaConsumerTemplate<>(kafkaReceiverOptions);
+    public ReactiveKafkaConsumerTemplate<String, BookingRequest> bookingKafkaConsumerTemplate(ReceiverOptions<String, BookingRequest> bookingKafkaReceiverOptions) {
+        return new ReactiveKafkaConsumerTemplate<>(bookingKafkaReceiverOptions);
     }
 
 }

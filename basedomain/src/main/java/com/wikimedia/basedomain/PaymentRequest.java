@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PaymentRequest {
     private Long id;
-    private Long userId;
-    private Long wikiId;
+    private Long bookingId;
+    private String status;
 
 }

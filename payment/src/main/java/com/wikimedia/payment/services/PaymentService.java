@@ -1,9 +1,9 @@
-package com.wikimedia.booking.services;
+package com.wikimedia.payment.services;
 
-import com.wikimedia.basedomain.BookingRequest;
 import com.wikimedia.basedomain.PaymentRequest;
-import com.wikimedia.booking.entity.Booking;
-import com.wikimedia.booking.repositories.BookingRepository;
+import com.wikimedia.payment.entities.Payment;
+import com.wikimedia.payment.repositories.PaymentRepository;
+import com.wikimedia.payment.utils.RandomUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,27 +15,25 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
 
 @Service
 @Slf4j
-public class WikimediaService implements CommandLineRunner {
-
+public class PaymentService implements CommandLineRunner {
 
     @Autowired
-    private ReactiveKafkaConsumerTemplate<String, BookingRequest> bookingKafkaConsumerTemplate;
+    private ReactiveKafkaConsumerTemplate<String, PaymentRequest> paymentKafkaConsumerTemplate;
 
     @Autowired
     private ReactiveKafkaProducerTemplate<String, PaymentRequest> paymentKafkaProducerTemplate;
 
     @Autowired
-    private BookingRepository bookingRepository;
+    private PaymentRepository paymentRepository;
 
     @Value("${topic.payment}")
     private String topicPayment;
 
-    public Flux<BookingRequest> consumerBookingRequest(){
-        return bookingKafkaConsumerTemplate
+    public Flux<PaymentRequest> consumerBookingRequest(){
+        return paymentKafkaConsumerTemplate
                 .receiveAutoAck()
                 .delayElements(Duration.ofSeconds(5L)) // BACKPRESSURE
                 .doOnNext(consumerRecord -> log.info("received key={}, value={} from topic={}, offset={}",
@@ -45,31 +43,22 @@ public class WikimediaService implements CommandLineRunner {
                         consumerRecord.offset())
                 )
                 .map(ConsumerRecord::value)
-                .doOnNext(bookingRequest -> {
-                    log.info("successfully consumed {}",  bookingRequest);
-                    Booking.BookingBuilder bookingBuilder = Booking.builder();
-                    bookingBuilder.createDate(LocalDateTime.now());
-                    bookingBuilder.userId(bookingRequest.getUserId());
-                    bookingBuilder.wikiId(bookingRequest.getWikiId());
-                    bookingBuilder.status("REQUEST");
-                    Booking booking = bookingBuilder.build();
-                    bookingRepository.save(booking);
-                    bookingRequest.setId(booking.getId());
-
+                .doOnNext(paymentRequest -> {
+                    log.info("successfully consumed {}",  paymentRequest);
+                    String status = RandomUtils.generateRandomNumber();
+                    Payment.PaymentBuilder paymentBuilder = Payment.builder();
+                    paymentBuilder.bookingId(paymentRequest.getBookingId());
+                    paymentBuilder.status(status);
+                    Payment payment = paymentBuilder.build();
+                    paymentRepository.save(payment);
+                    paymentRequest.setStatus(status);
                 })
-                .doOnNext(bookingRequest -> {
-
-                    PaymentRequest.PaymentRequestBuilder paymentRequestBuilder = PaymentRequest.builder();
-                    paymentRequestBuilder.bookingId(bookingRequest.getId());
-
-                    PaymentRequest paymentRequest = paymentRequestBuilder.build();
-                    log.info("send msg to payment service {}", paymentRequest);
-
+                .doOnNext(paymentRequest -> {
                     paymentKafkaProducerTemplate.send(topicPayment, paymentRequest)
                             .doOnSuccess(senderResult -> log.info("sent {} offset : {}", paymentRequest, senderResult.recordMetadata().offset()))
                             .subscribe();
-
                 })
+
                 .doOnError(throwable -> log.error("something bad happened while consuming : {}", throwable.getMessage()));
     }
 
@@ -77,4 +66,5 @@ public class WikimediaService implements CommandLineRunner {
     public void run(String... args){
         consumerBookingRequest().subscribe();
     }
+
 }
