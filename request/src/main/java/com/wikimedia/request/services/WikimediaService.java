@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class WikimediaService implements CommandLineRunner {
 
-    @Value("${spring.kafka.topic.name}")
+    @Value("${topic.wikimedia}")
     private String topic;
 
     @Autowired
