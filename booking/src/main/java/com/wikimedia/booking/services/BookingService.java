@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 
 @Service
 @Slf4j
-public class WikimediaService implements CommandLineRunner {
+public class BookingService implements CommandLineRunner {
 
 
     @Autowired
