@@ -18,11 +18,13 @@ import java.util.Map;
 @Configuration
 public class PaymentConsumerConfig {
 
+    @Value("${spring.kafka.bootstrap-servers}")
+    private String hostKafka;
     @Bean
     public ReceiverOptions<String, PaymentRequest> paymentReceiverOptions(@Value(value = "${topic.payment}") String topic,
                                                                         KafkaProperties kafkaProperties) {
         Map<String, Object> config = new HashMap<>();
-        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, hostKafka);
         config.put(ConsumerConfig.GROUP_ID_CONFIG, "payment-group");
         config.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, false);
         config.put(JsonDeserializer.TRUSTED_PACKAGES,"*");
