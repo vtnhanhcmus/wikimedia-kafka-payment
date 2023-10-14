@@ -9,9 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.wikimedia</groupId>
-	<artifactId>booking</artifactId>
+	<artifactId>wikimedia-booking</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>booking</name>
+	<packaging>jar</packaging>
+	<name>wikimedia-booking</name>
 	<description>Wikimedia Booking</description>
 	<properties>
 		<java.version>17</java.version>
@@ -29,7 +30,7 @@
 		<dependency>
 			<groupId>com.wikimedia</groupId>
 			<artifactId>basedomain</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.0.1</version>
 		</dependency>
 
 		<dependency>
