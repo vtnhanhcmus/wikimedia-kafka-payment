@@ -1,37 +1,23 @@
 pipeline {
     agent any
 
+    tools{
+        maven 'maven'
+    }
+
     stages{
         stage('Build Maven'){
             steps{
                 checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/vtnhanhcmus/wikimedia-kafka-payment.git']])
-                sh './mvnw clean install'
+                sh 'mvn clean install -DskipTests -Dspring-boot.build.skip=true'
             }
         }
         stage('Build docker image'){
             steps{
                 script{
-                    sh './mvnw spring-boot:build-image -DskipTests -Dspring-boot.build.skip=true'
+                    sh 'cd request && mvn spring-boot:build-image -DskipTests -Dspring-boot.build.skip=true'
                 }
             }
         }
-//         stage('Push image to Hub'){
-//             steps{
-//                 script{
-//                    withCredentials([string(credentialsId: 'dockerhub-pwd', variable: 'dockerhubpwd')]) {
-//                    sh 'docker login -u javatechie -p ${dockerhubpwd}'
-//
-// }
-//                    sh 'docker push javatechie/devops-integration'
-//                 }
-//             }
-//         }
-//         stage('Deploy to k8s'){
-//             steps{
-//                 script{
-//                     kubernetesDeploy (configs: 'deploymentservice.yaml',kubeconfigId: 'k8sconfigpwd')
-//                 }
-//             }
-//         }
     }
 }

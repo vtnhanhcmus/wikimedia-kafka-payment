@@ -167,7 +167,7 @@ services:
 
 
   jenkins:
-    image: jenkins/jenkins:lts
+    image: jenkins/jenkins:lts-jdk17
     restart: always
     privileged: true
     user: root
