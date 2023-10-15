@@ -1,0 +1,23 @@
+pipeline {
+    agent any
+
+    tools{
+        maven 'maven'
+    }
+
+    stages{
+        stage('Build Maven'){
+            steps{
+                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/vtnhanhcmus/wikimedia-kafka-payment.git']])
+                sh 'mvn clean install -DskipTests -Dspring-boot.build.skip=true'
+            }
+        }
+        stage('Build docker image'){
+            steps{
+                script{
+                    sh 'cd booking && mvn spring-boot:build-image -DskipTests -Dspring-boot.build.skip=true'
+                }
+            }
+        }
+    }
+}
