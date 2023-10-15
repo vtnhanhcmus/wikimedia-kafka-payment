@@ -19,5 +19,19 @@ pipeline {
                 }
             }
         }
+
+        stage('Deploy') {
+            steps {
+                // Apply ConfigMap
+                kubernetesApply(configs: '../config-map.yml')
+
+                // Deploy the application using a Kubernetes manifest
+                kubernetesDeploy(
+                    configs: '../request-deployment.yml',
+                    enableConfigSubstitution: true
+                )
+            }
+        }
+
     }
 }

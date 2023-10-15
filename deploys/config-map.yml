@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wikimedia-configmap
+data:
+    SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/wikimedia?useUnicode=true&characterEncoding=utf-8&&allowLoadLocalInfile=true
+    SPRING_KAFKA_BOOTSTRAP_SERVERS: localhost:9092

@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: request-deployment
+  labels:
+    app: wikimedia-request
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wikimedia-request
+  template:
+    metadata:
+      labels:
+        app: wikimedia-request
+    spec:
+      containers:
+      - name: request
+        image: vtnhanhcmus/wikimedia-request:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8085
+        env:
+        - name: SPRING_DATASOURCE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: wikimedia-configmap
+              key: BOOKINGS_DATASOURCE_URL
+        - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+          valueFrom: 
+            configMapKeyRef:
+              name: wikimedia-configmap
+              key: SPRING_KAFKA_BOOTSTRAP_SERVERS
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wikimedia-request-service
+spec:
+  selector:
+    app: wikimedia-request
+  type: NodePort
+  ports:
+    - protocol: TCP
+      port: 8085
+      targetPort: 8085
