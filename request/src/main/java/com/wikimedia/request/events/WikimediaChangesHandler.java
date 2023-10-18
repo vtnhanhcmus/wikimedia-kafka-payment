@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
 import reactor.core.publisher.Mono;
 
+import java.util.concurrent.TimeUnit;
+
 @NoArgsConstructor
 public class WikimediaChangesHandler implements EventHandler {
 
@@ -45,7 +47,11 @@ public class WikimediaChangesHandler implements EventHandler {
         WikiData wikiData = new Gson().fromJson(messageEvent.getData(), WikiData.class);
 
         BookingRequest bookingRequest = bookingRequestService.createBookingRequest(wikiData);
-
+        try {
+            TimeUnit.SECONDS.sleep(1);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         reactiveKafkaProducerTemplate.send(topic, bookingRequest)
                 .doOnSuccess(senderResult -> LOGGER.info("sent {} offset : {}", bookingRequest, senderResult.recordMetadata().offset()))
                 .subscribe();
