@@ -15,21 +15,20 @@ pipeline {
         stage('Build docker image'){
             steps{
                 script{
-                    sh 'cd request && mvn spring-boot:build-image -DskipTests -Dspring-boot.build.skip=true'
+                    sh 'cd request && docker build -t vtnhanhcmus/wiki-request:latest .'
                 }
             }
         }
 
-        stage('Deploy') {
+        stage('Push Docker Hub') {
             steps {
-                // Apply ConfigMap
-                kubernetesApply(configs: '../config-map.yml')
+                script{
 
-                // Deploy the application using a Kubernetes manifest
-                kubernetesDeploy(
-                    configs: '../request-deployment.yml',
-                    enableConfigSubstitution: true
-                )
+                    withCredentials([string(credentialsId: 'dockerhubpwd', variable: 'dockerhubpwd')]) {
+                        sh 'docker login -u vtnhanhcmus -p ${dockerhubpwd}'
+                    }
+                    sh 'docker push vtnhanhcmus/wiki-request'
+                }
             }
         }
 
