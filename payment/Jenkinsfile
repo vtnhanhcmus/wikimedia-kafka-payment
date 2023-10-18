@@ -15,9 +15,22 @@ pipeline {
         stage('Build docker image'){
             steps{
                 script{
-                    sh 'cd payment && mvn spring-boot:build-image -DskipTests -Dspring-boot.build.skip=true'
+                    sh 'cd payment && docker build -t vtnhanhcmus/wiki-payment:latest .'
                 }
             }
         }
+
+        stage('Push Docker Hub') {
+            steps {
+                script{
+
+                    withCredentials([string(credentialsId: 'dockerhubpwd', variable: 'dockerhubpwd')]) {
+                        sh 'docker login -u vtnhanhcmus -p ${dockerhubpwd}'
+                    }
+                    sh 'docker push vtnhanhcmus/wiki-payment'
+                }
+            }
+        }
+
     }
 }
