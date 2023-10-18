@@ -167,10 +167,12 @@ services:
 
 
   jenkins:
-    image: jenkins/jenkins:lts-jdk17
+    image: custom-jenkins-docker
     restart: always
     privileged: true
     user: root
+    networks:
+      - wiki-networks
     ports:
       - 9000:8080
       - 50000:50000
