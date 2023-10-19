@@ -29,6 +29,7 @@ public class WikimediaChangesHandler implements EventHandler {
         this.reactiveKafkaProducerTemplate = reactiveKafkaProducerTemplate;
         this.topic = topic;
         this.bookingRequestService = bookingRequestService;
+
     }
 
     @Override

@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: bookings
-        image: vtnhanhcmus/wikimedia-booking:latest
+        image: vtnhanhcmus/wiki-booking:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 10000
