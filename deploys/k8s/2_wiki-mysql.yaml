@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wiki-mysql-deployment
+  labels:
+    app: wiki-mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wiki-mysql
+  template:
+    metadata:
+      labels:
+        app: wiki-mysql
+    spec:
+      containers:
+      - name: wiki-mysql
+        image: mysql
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: "1024Mi"  # Limit memory usage to 1024 megabytes
+            cpu: "0.5"       # Limit CPU usage to 0.5 cores
+        ports:
+        - containerPort: 3306
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              name: wiki-configmap
+              key: MYSQL_ROOT_PASSWORD
+        - name: MYSQL_DATABASE
+          valueFrom:
+            configMapKeyRef:
+              name: wiki-configmap
+              key: MYSQL_DATABASE
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wiki-mysql-service
+spec:
+  selector:
+    app: wiki-mysql
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306

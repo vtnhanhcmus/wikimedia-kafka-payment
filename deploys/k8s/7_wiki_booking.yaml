@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wiki-booking-deployment
+  labels:
+    app: wiki-booking
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wiki-booking
+  template:
+    metadata:
+      labels:
+        app: wiki-booking
+    spec:
+      containers:
+      - name: wiki-booking
+        image: vtnhanhcmus/wiki-booking:latest
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: "1024Mi"  # Limit memory usage to 1024 megabytes
+            cpu: "0.5"       # Limit CPU usage to 0.5 cores
+        ports:
+        - containerPort: 8086
+        env:
+        - name: SPRING_DATASOURCE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: wiki-configmap
+              key: SPRING_DATASOURCE_URL
+        - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+          valueFrom: 
+            configMapKeyRef:
+              name: wiki-configmap
+              key: SPRING_KAFKA_BOOTSTRAP_SERVERS
+       
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wiki-booking-service
+spec:
+  selector:
+    app: wiki-booking
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 8086
+      targetPort: 8086

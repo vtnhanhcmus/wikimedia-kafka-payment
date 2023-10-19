@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wiki-zoo-deployment
+  labels:
+    app: wiki-zoo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wiki-zoo
+  template:
+    metadata:
+      labels:
+        app: wiki-zoo
+    spec:
+      containers:
+      - name: wiki-zoo
+        image: confluentinc/cp-zookeeper:7.3.0
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: "1024Mi"  # Limit memory usage to 1024 megabytes
+            cpu: "0.5"       # Limit CPU usage to 0.5 cores
+        ports:
+        - containerPort: 2181
+        env:
+        - name: ZOOKEEPER_CLIENT_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: wiki-configmap
+              key: ZOOKEEPER_CLIENT_PORT
+        - name: ZOOKEEPER_SERVER_ID
+          valueFrom:
+            configMapKeyRef:
+              name: wiki-configmap
+              key: ZOOKEEPER_SERVER_ID
+        - name: ZOOKEEPER_SERVERS
+          valueFrom:
+            configMapKeyRef:
+              name: wiki-configmap
+              key: ZOOKEEPER_SERVERS
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wiki-zoo-service
+spec:
+  selector:
+    app: wiki-zoo
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 2181
+      targetPort: 2181
