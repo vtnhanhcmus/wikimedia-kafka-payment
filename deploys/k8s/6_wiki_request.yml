@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: wiki-request
-        image: vtnhanhcmus/wiki-booking:latest
+        image: vtnhanhcmus/wiki-request:latest
         imagePullPolicy: Always
         resources:
           limits:
