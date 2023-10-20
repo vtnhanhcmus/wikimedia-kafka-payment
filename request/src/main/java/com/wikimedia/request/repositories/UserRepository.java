@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface UserRepository extends JpaRepository<FakeUser, Long> {
-    @Query("SELECT fu FROM FakeUser fu ORDER BY RAND() LIMIT 1")
+    @Query("SELECT fu FROM FakeUser fu ORDER BY RANDOM() LIMIT 1")
     FakeUser findRandomUser();
 
 }

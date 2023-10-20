@@ -4,11 +4,11 @@ metadata:
   name: wiki-configmap
 data:
     SPRING_DATASOURCE_URL: "jdbc:postgresql://wiki-db-service:5432/wikimedia"
-    SPRING_KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+    SPRING_KAFKA_BOOTSTRAP_SERVERS: "kafka-service:9092"
 
-    WIKI_DB: wikimedia
-    WIKI_USER: postgres
-    WIKI_PASS: postgres
+    WIKI_DB: "wikimedia"
+    WIKI_USER: "postgres"
+    WIKI_PASS: "postgres"
 
 #    ZOOKEEPER_CLIENT_PORT: "2181"
 #    ZOOKEEPER_SERVER_ID: "1"
