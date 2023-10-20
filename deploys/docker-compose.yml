@@ -98,6 +98,76 @@ services:
       - wiki-networks
 
 
+  wiki-media-request:
+    image: vtnhanhcmus/wiki-request
+    ports:
+      - "8085:8085"
+    networks:
+      - wiki-networks
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://wiki-db:5432/wiki_db
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka1:19092
+    depends_on:
+      - kafka1
+      - kafka-schema-registry
+      - wiki-db
+    deploy:
+      resources:
+        limits:
+          memory: 1400MB
+      restart_policy:
+        condition: on-failure
+        delay: 30s
+        max_attempts: 3
+        window: 120s
+
+  wiki-media-payment:
+    image: vtnhanhcmus/wiki-payment
+    ports:
+      - "8088:8088"
+    networks:
+      - wiki-networks
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://wiki-db:5432/wiki_db
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka1:19092
+    depends_on:
+      - kafka1
+      - kafka-schema-registry
+      - wiki-db
+    deploy:
+      resources:
+        limits:
+          memory: 1400MB
+      restart_policy:
+        condition: on-failure
+        delay: 30s
+        max_attempts: 3
+        window: 120s
+
+  wiki-media-booking:
+    image: vtnhanhcmus/wiki-booking
+    ports:
+      - "8086:8086"
+    networks:
+      - wiki-networks
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://wiki-db:5432/wiki_db
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka1:19092
+    depends_on:
+      - kafka1
+      - kafka-schema-registry
+      - wiki-db
+    deploy:
+      resources:
+        limits:
+          memory: 1400MB
+      restart_policy:
+        condition: on-failure
+        delay: 30s
+        max_attempts: 3
+        window: 120s
+
+
   jenkins:
     image: custom-jenkins-docker
     restart: always
