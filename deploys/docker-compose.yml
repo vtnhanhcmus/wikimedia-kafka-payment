@@ -80,88 +80,20 @@ services:
       CDK_ADMIN_EMAIL: "admin@conduktor.io"
       CDK_ADMIN_PASSWORD: "admin"
 
-  wiki-media-request:
-      image: vtnhanhcmus/wikimedia-request
-      ports:
-        - "8085:8085"
-      networks:
-        - wiki-networks
-      environment:
-        SPRING_DATASOURCE_URL: jdbc:mysql://wiki-media-mysql:3306/wikimedia?useUnicode=true&characterEncoding=utf-8&&allowLoadLocalInfile=true
-        SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka1:19092
-      depends_on:
-        - kafka1
-        - kafka-schema-registry
-        - wiki-media-mysql
-      deploy:
-        resources:
-          limits:
-            memory: 1400MB
-        restart_policy:
-          condition: on-failure
-          delay: 30s
-          max_attempts: 3
-          window: 120s
-
-  wiki-media-payment:
-    image: vtnhanhcmus/wikimedia-payment
-    ports:
-      - "8088:8088"
-    networks:
-      - wiki-networks
-    environment:
-        SPRING_DATASOURCE_URL: jdbc:mysql://wiki-media-mysql:3306/wikimedia?useUnicode=true&characterEncoding=utf-8&&allowLoadLocalInfile=true
-        SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka1:19092
-    depends_on:
-      - kafka1
-      - kafka-schema-registry
-      - wiki-media-mysql
-    deploy:
-      resources:
-        limits:
-          memory: 1400MB
-      restart_policy:
-        condition: on-failure
-        delay: 30s
-        max_attempts: 3
-        window: 120s
-
-  wiki-media-booking:
-    image: vtnhanhcmus/wikimedia-booking
-    ports:
-      - "8086:8086"
-    networks:
-      - wiki-networks
-    environment:
-        SPRING_DATASOURCE_URL: jdbc:mysql://wiki-media-mysql:3306/wikimedia?useUnicode=true&characterEncoding=utf-8&&allowLoadLocalInfile=true
-        SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka1:19092
-    depends_on:
-      - kafka1
-      - kafka-schema-registry
-      - wiki-media-mysql
-    deploy:
-      resources:
-        limits:
-          memory: 1400MB
-      restart_policy:
-        condition: on-failure
-        delay: 30s
-        max_attempts: 3
-        window: 120s
-
-  wiki-media-mysql:
-    container_name: wiki-media-mysql
-    image: mysql:5.7
-    platform: linux/amd64
-    environment:
-        - MYSQL_ROOT_PASSWORD=password
-        - MYSQL_DATABASE=wikimedia
-    ports:
-        - 3306:3306
-    command: mysqld --lower_case_table_names=1 --skip-ssl --character_set_server=utf8 --explicit_defaults_for_timestamp --sql-mode="STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION"
-
+  wiki-db:
+    image: kartoza/postgis:15-3.3
     volumes:
-      - wiki-media-mysql:/var/lib/mysql
+      - wiki-media-postgresql:/var/lib/postgresql
+    environment:
+      - POSTGRES_DB=wiki_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASS=postgres
+      - RUN_AS_ROOT=true
+    ports:
+      - "5432:5432"
+    restart: on-failure
+    healthcheck:
+      test: "PGPASSWORD=postgres pg_isready -h 127.0.0.1 -U postgres -d wiki_db"
     networks:
       - wiki-networks
 
@@ -181,24 +113,8 @@ services:
       - ~/jenkins:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock    
 
-  sonarqube:
-    image: sonarqube:7.6-community 
-    volumes:
-      - sonarqube_conf:/opt/sonarqube/conf
-      - sonarqube_data:/opt/sonarqube/data
-      - sonarqube_extensions:/opt/sonarqube/extensions
-      - sonarqube_bundled-plugins:/opt/sonarqube/lib/bundled-plugins
-    networks:
-      - sonarnet
-    ports:
-      - '7000:9000'
-    environment:
-      - sonar.jdbc.username=sonar
-      - sonar.jdbc.password=sonar
-      - sonar.jdbc.url=jdbc:postgresql://db:5432/sonar
-
 volumes:
   conduktor_data: {}
-  wiki-media-mysql: {}
+  wiki-media-postgresql: {}
 networks:
   wiki-networks:

@@ -1,50 +1,54 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: wiki-mysql-deployment
+  name: wiki-db-deployment
   labels:
-    app: wiki-mysql
+    app: wiki-db
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: wiki-mysql
+      app: wiki-db
   template:
     metadata:
       labels:
-        app: wiki-mysql
+        app: wiki-db
     spec:
       containers:
-      - name: wiki-mysql
-        image: mysql
-        imagePullPolicy: Always
+      - name: wiki-db
+        image: kartoza/postgis:15-3.3
         resources:
           limits:
             memory: "1024Mi"  # Limit memory usage to 1024 megabytes
             cpu: "0.5"       # Limit CPU usage to 0.5 cores
         ports:
-        - containerPort: 3306
+        - containerPort: 5432
         env:
-        - name: MYSQL_ROOT_PASSWORD
+        - name: POSTGRES_DB
           valueFrom:
             configMapKeyRef:
               name: wiki-configmap
-              key: MYSQL_ROOT_PASSWORD
-        - name: MYSQL_DATABASE
+              key: WIKI_DB
+        - name: POSTGRES_USER
           valueFrom:
             configMapKeyRef:
               name: wiki-configmap
-              key: MYSQL_DATABASE
----
+              key: WIKI_USER
+        - name: POSTGRES_PASS
+          valueFrom:
+            configMapKeyRef:
+              name: wiki-configmap
+              key: WIKI_PASS
+--- 
 apiVersion: v1
 kind: Service
 metadata:
-  name: wiki-mysql-service
+  name: wiki-db-service
 spec:
   selector:
-    app: wiki-mysql
+    app: wiki-db
   type: LoadBalancer
   ports:
     - protocol: TCP
-      port: 3306
-      targetPort: 3306
+      port: 5432
+      targetPort: 5432

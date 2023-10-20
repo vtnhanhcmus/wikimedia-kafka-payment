@@ -1,0 +1,22 @@
+version: "3.8"
+services:
+  wiki-db:
+    image: kartoza/postgis:15-3.3
+    volumes:
+      - postgis-data:/var/lib/postgresql
+    environment:
+      - POSTGRES_DB=wiki_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASS=postgres
+      - RUN_AS_ROOT=true
+    ports:
+      - "5432:5432"
+    restart: on-failure
+    healthcheck:
+      test: "PGPASSWORD=postgres pg_isready -h 127.0.0.1 -U postgres -d wiki_db"
+    networks:
+      - wiki-service
+networks:
+  wiki-service:
+volumes:
+  postgis-data:
