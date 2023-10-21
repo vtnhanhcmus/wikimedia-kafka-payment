@@ -55,6 +55,7 @@ public class WikimediaChangesHandler implements EventHandler {
         }
         reactiveKafkaProducerTemplate.send(topic, bookingRequest)
                 .doOnSuccess(senderResult -> LOGGER.info("sent {} offset : {}", bookingRequest, senderResult.recordMetadata().offset()))
+                .doOnError(senderResult -> LOGGER.error("send error {}", senderResult.getMessage()))
                 .subscribe();
     }
 
